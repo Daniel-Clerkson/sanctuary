@@ -39,7 +39,7 @@ function HeroSection() {
         </div>
         <div className={`mt-8 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '160ms' }}>
           <p className="font-sans text-muted-foreground text-base md:text-lg max-w-[480px] leading-relaxed">
-            A community for young believers in Lagos. Sermons, events, devotionals — all in one place.
+            A community for young believers in Kano. Sermons, events, devotionals — all in one place.
           </p>
         </div>
         <div className={`flex flex-wrap gap-4 mt-10 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '240ms' }}>
@@ -90,7 +90,7 @@ function FeatureBlocks() {
           </div>
           <div className="mt-auto">
             <h3 className="font-serif text-cream text-xl md:text-2xl mb-1">The Weight of Grace</h3>
-            <p className="font-sans text-muted-foreground text-sm">Pastor Adebayo</p>
+            <p className="font-sans text-muted-foreground text-sm">Pastor Bright</p>
           </div>
         </div>
 
