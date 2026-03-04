@@ -24,7 +24,6 @@ function WaveformAnimation() {
 function HeroSection() {
   const [mounted, setMounted] = useState(false)
   
-  // Replace this with your specific YouTube Video ID
   const videoId = "XQF_rtkgqyc" 
 
   useEffect(() => { setMounted(true) }, [])
@@ -33,7 +32,7 @@ function HeroSection() {
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
       {/* 1. YOUTUBE BACKGROUND OVERLAY */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 w-full h-full scale-[1.5]"> {/* Scale prevents black bars */}
+        <div className="absolute inset-0 w-full h-full scale-[1.5]">
           <iframe
             src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1`}
             allow="autoplay; encrypted-media"
@@ -44,7 +43,7 @@ function HeroSection() {
         
         {/* Cinematic Overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background" />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/10" />
       </div>
 
       {/* 2. HERO CONTENT */}
