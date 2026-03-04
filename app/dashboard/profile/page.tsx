@@ -1,179 +1,177 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { demoUser, sermons, events, attendanceHistory } from '@/lib/store'
-import { Camera, Edit3, Bookmark, Calendar, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { departments } from "@/lib/store";
+import { Copy, Check, Pencil, X, Save } from "lucide-react";
+import { useUser } from "@/hooks/use-user";
+import { createClient } from "@supabase/supabase-js";
 
-function AttendanceMiniCalendar() {
-  const today = new Date()
-  const month = new Date(today.getFullYear(), today.getMonth(), 1)
-  const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
-  const firstDay = new Date(month.getFullYear(), month.getMonth(), 1).getDay()
-  const attendedDates = new Set(attendanceHistory.filter((r) => r.checkedIn).map((r) => r.date))
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+function ProfileCompletionBar({ user }: { user: any }) {
+  const fields = [
+    { label: "Name", filled: !!user?.name },
+    { label: "Email", filled: !!user?.email },
+    { label: "Phone", filled: !!user?.phone_number },
+    { label: "Department", filled: !!user?.department },
+  ];
+  const filled = fields.filter((f) => f.filled).length;
+  const percent = Math.round((filled / fields.length) * 100);
 
   return (
-    <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-4">
-      <h4 className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider mb-3 text-center">
-        {month.toLocaleDateString('en-NG', { month: 'long', year: 'numeric' })}
-      </h4>
-      <div className="grid grid-cols-7 gap-1">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
-          <div key={`${d}-${i}`} className="text-center font-mono text-[9px] text-muted-foreground py-0.5">{d}</div>
+    <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">Profile Completion</p>
+        <span className="font-mono text-xs text-gold">{percent}%</span>
+      </div>
+      <div className="w-full h-1.5 bg-surface-elevated rounded-full overflow-hidden">
+        <div className="h-full bg-gold rounded-full transition-all duration-700" style={{ width: `${percent}%` }} />
+      </div>
+      <div className="flex gap-2 flex-wrap">
+        {fields.map((f) => (
+          <span key={f.label} className={`font-mono text-[10px] px-2 py-0.5 rounded-md border ${f.filled ? "border-gold/30 text-gold bg-gold/10" : "border-[rgba(255,255,255,0.06)] text-muted-foreground"}`}>
+            {f.filled ? "✓" : "○"} {f.label}
+          </span>
         ))}
-        {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
-        {Array.from({ length: daysInMonth }).map((_, i) => {
-          const day = i + 1
-          const dateStr = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-          const attended = attendedDates.has(dateStr)
-          return (
-            <div
-              key={day}
-              className={`w-full aspect-square rounded-md flex items-center justify-center text-[10px] font-mono ${
-                attended ? 'bg-gold/20 text-gold font-bold' : 'text-cream/20'
-              }`}
-            >
-              {day}
-            </div>
-          )
-        })}
       </div>
     </div>
-  )
+  );
+}
+
+function InviteButton() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(window.location.origin + "/auth/onboarding?ref=invite");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`w-full h-10 flex items-center justify-center gap-2 rounded-xl border font-mono text-xs transition-all duration-200 ${
+        copied ? "border-gold/40 bg-gold/10 text-gold" : "border-[rgba(255,255,255,0.06)] text-muted-foreground hover:border-gold/20 hover:text-cream"
+      }`}
+    >
+      {copied ? <Check size={13} /> : <Copy size={13} />}
+      {copied ? "Invite link copied!" : "Copy invite link"}
+    </button>
+  );
+}
+
+function EditProfileModal({ user, onClose, onSave }: { user: any; onClose: () => void; onSave: (data: any) => void }) {
+  const [form, setForm] = useState({
+    name: user?.name || "",
+    phone_number: user?.phone_number || "",
+    department: user?.department || "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    await supabase.from("users").update(form).eq("email", user?.email);
+    onSave(form);
+    setSaving(false);
+    onClose();
+  };
+
+  const inputClass = "w-full h-10 px-3 bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-xl text-cream font-sans text-sm placeholder:text-muted-foreground focus:outline-none focus:border-gold/40 transition-all duration-200";
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-surface border border-[rgba(255,255,255,0.1)] rounded-2xl p-6 w-full max-w-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-serif text-cream text-lg">Edit Profile</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-cream transition-colors">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="space-y-3">
+          <div>
+            <label className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Full Name</label>
+            <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClass} />
+          </div>
+          <div>
+            <label className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Phone Number</label>
+            <input type="tel" value={form.phone_number} onChange={(e) => setForm({ ...form, phone_number: e.target.value })} className={inputClass} />
+          </div>
+          <div>
+            <label className="font-mono text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5 block">Department</label>
+            <select value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} className={inputClass}>
+              {departments.map((d) => (
+                <option key={d} value={d} className="bg-surface-elevated text-cream">{d}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full h-10 bg-gold text-[#0A0A0A] font-sans font-medium text-sm rounded-xl hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          <Save size={14} />
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function ProfilePage() {
-  const [mounted, setMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<'bookmarks' | 'rsvps' | 'attendance'>('bookmarks')
+  const [mounted, setMounted] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const { user } = useUser();
+  const [localUser, setLocalUser] = useState<any>(null);
 
-  useEffect(() => { setMounted(true) }, [])
+  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { if (user) setLocalUser(user); }, [user]);
 
-  const totalAttended = attendanceHistory.filter((r) => r.checkedIn).length
-  const bookmarkedSermons = sermons.slice(0, 3)
-  const rsvpEvents = events.slice(0, 2)
-
-  const tabs = [
-    { key: 'bookmarks', label: 'My Bookmarks', icon: Bookmark },
-    { key: 'rsvps', label: 'My RSVPs', icon: Calendar },
-    { key: 'attendance', label: 'Attendance History', icon: CheckCircle2 },
-  ] as const
+  const displayUser = localUser || user;
 
   return (
-    <div>
-      <div className={`grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-8 ${mounted ? 'animate-fade-up' : 'opacity-0'}`}>
-        {/* Profile card */}
-        <div className="space-y-6">
-          <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-6 text-center">
-            {/* Avatar */}
-            <div className="relative inline-block group cursor-pointer">
-              <div className="w-24 h-24 rounded-full bg-surface-elevated border-[3px] border-gold flex items-center justify-center mx-auto">
-                <span className="font-serif text-gold text-3xl">{demoUser.name.charAt(0)}</span>
-              </div>
-              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera size={20} className="text-cream" />
-              </div>
-            </div>
+    <div className={`max-w-sm ${mounted ? "animate-fade-up" : "opacity-0"}`}>
+      {editOpen && displayUser && (
+        <EditProfileModal
+          user={displayUser}
+          onClose={() => setEditOpen(false)}
+          onSave={(data) => setLocalUser({ ...displayUser, ...data })}
+        />
+      )}
 
-            <h2 className="font-serif text-cream text-xl mt-4">{demoUser.name}</h2>
-            <span className="inline-block font-mono text-[10px] text-gold border border-gold/30 rounded-md px-2 py-0.5 mt-2">
-              {demoUser.department}
+      <div className="space-y-4">
+        <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-6 text-center relative">
+          <button
+            onClick={() => setEditOpen(true)}
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg border border-[rgba(255,255,255,0.06)] text-muted-foreground hover:text-cream hover:border-gold/20 transition-all duration-200"
+          >
+            <Pencil size={13} />
+          </button>
+
+          <div className="w-24 h-24 rounded-full bg-surface-elevated border-[3px] border-gold flex items-center justify-center mx-auto">
+            <span className="font-serif text-gold text-3xl">
+              {displayUser?.name?.charAt(0) ?? "?"}
             </span>
-            <p className="font-mono text-muted-foreground text-[10px] mt-2">
-              Joined {new Date(demoUser.joinDate).toLocaleDateString('en-NG', { month: 'long', year: 'numeric' })}
-            </p>
-
-            <button className="inline-flex items-center gap-2 h-9 px-4 border border-gold/30 text-gold font-sans text-xs font-medium rounded-lg hover:bg-gold/10 transition-all mt-4">
-              <Edit3 size={14} />
-              Edit Profile
-            </button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-xl p-3 text-center">
-              <p className="font-serif text-cream text-lg">{totalAttended}</p>
-              <p className="font-sans text-muted-foreground text-[10px]">Attended</p>
-            </div>
-            <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-xl p-3 text-center">
-              <p className="font-serif text-cream text-lg">{bookmarkedSermons.length}</p>
-              <p className="font-sans text-muted-foreground text-[10px]">Bookmarked</p>
-            </div>
-            <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-xl p-3 text-center">
-              <p className="font-serif text-cream text-lg">{rsvpEvents.length}</p>
-              <p className="font-sans text-muted-foreground text-[10px]">Events</p>
-            </div>
-          </div>
+          <h2 className="font-serif text-cream text-xl mt-4">{displayUser?.name}</h2>
+          <span className="inline-block font-mono text-[10px] text-gold border border-gold/30 rounded-md px-2 py-0.5 mt-2">
+            {displayUser?.department}
+          </span>
+          <p className="font-mono text-muted-foreground text-[10px] mt-2">
+            Joined{" "}
+            {displayUser?.created_at
+              ? new Date(displayUser.created_at).toLocaleDateString("en-NG", { month: "long", year: "numeric" })
+              : "—"}
+          </p>
         </div>
 
-        {/* Activity */}
-        <div>
-          {/* Tabs */}
-          <div className="flex gap-1 mb-6 overflow-x-auto">
-            {tabs.map((tab) => {
-              const Icon = tab.icon
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-2 h-9 px-4 rounded-lg font-sans text-xs font-medium transition-all flex-shrink-0 ${
-                    activeTab === tab.key
-                      ? 'bg-gold text-[#0A0A0A]'
-                      : 'bg-surface border border-[rgba(255,255,255,0.06)] text-muted-foreground hover:text-cream'
-                  }`}
-                >
-                  <Icon size={14} />
-                  {tab.label}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Tab content */}
-          {activeTab === 'bookmarks' && (
-            <div className="space-y-3">
-              {bookmarkedSermons.map((sermon) => (
-                <Link
-                  key={sermon.id}
-                  href={`/dashboard/sermons/${sermon.id}`}
-                  className="flex items-center gap-4 bg-surface border border-[rgba(255,255,255,0.06)] rounded-xl p-4 hover:border-gold/20 transition-all"
-                >
-                  <div className="w-12 h-12 bg-surface-elevated rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Bookmark size={16} className="text-gold fill-gold" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-sans text-cream text-sm font-medium truncate">{sermon.title}</h4>
-                    <p className="font-sans text-muted-foreground text-xs mt-0.5">{sermon.pastor}</p>
-                  </div>
-                  <span className="font-mono text-gold text-xs flex-shrink-0">{sermon.duration}</span>
-                </Link>
-              ))}
-              {bookmarkedSermons.length === 0 && (
-                <p className="font-serif text-muted-foreground italic text-center py-12">No bookmarks yet.</p>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'rsvps' && (
-            <div className="space-y-3">
-              {rsvpEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-xl p-4"
-                >
-                  <h4 className="font-sans text-cream text-sm font-medium">{event.name}</h4>
-                  <p className="font-mono text-gold text-xs mt-1">
-                    {new Date(event.date).toLocaleDateString('en-NG', { weekday: 'short', month: 'short', day: 'numeric' })}
-                    {' \u00B7 '}{event.time}
-                  </p>
-                  <p className="font-sans text-muted-foreground text-xs mt-1">{event.location}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'attendance' && <AttendanceMiniCalendar />}
-        </div>
+        {displayUser && <ProfileCompletionBar user={displayUser} />}
+        <InviteButton />
       </div>
     </div>
-  )
+  );
 }

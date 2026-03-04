@@ -5,23 +5,49 @@ import { useRouter } from "next/navigation";
 import { departments } from "@/lib/store";
 import ScriptureCarousel from "@/components/scripture-carousel";
 import GeometricArt from "@/components/geometric-art";
+import { useSession } from "next-auth/react";
+import { createClient } from "@supabase/supabase-js";
 
-export default function AuthPage() {
-  const [mode, setMode] = useState("register")
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+);
+
+function OnboardingPage() {
+  const [mode, setMode] = useState("register");
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     phone: "",
     department: "General",
-    password: "",
   });
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { data: session } = useSession();
+
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("users")
+      .update({
+        name: formData.name,
+        phone_number: formData.phone,
+        department: formData.department,
+        onboarded: true,
+      })
+      .eq("email", session?.user?.email);
+
+    if (error) {
+      console.error("Update error:", error);
+      setLoading(false);
+      return;
+    }
+
     router.push("/dashboard");
   };
-
   const inputClass =
     "w-full h-12 px-4 bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-xl text-cream font-sans text-sm placeholder:text-muted-foreground focus:outline-none focus:border-gold/40 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.15)] transition-all duration-200";
 
@@ -99,9 +125,10 @@ export default function AuthPage() {
 
             <button
               type="submit"
-              className="w-full cursor-pointer h-12 bg-gold text-[#0A0A0A] font-sans font-medium text-sm rounded-xl hover:scale-[1.02] transition-all duration-200 mt-2"
+              disabled={loading}
+              className="w-full cursor-pointer h-12 bg-gold text-[#0A0A0A] font-sans font-medium text-sm rounded-xl hover:scale-[1.02] transition-all duration-200 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {"Continue \u2192"}
+              {loading ? "Saving..." : "Continue →"}
             </button>
 
             <p className="font-sans text-[11px] text-muted-foreground text-center mt-2">
@@ -113,3 +140,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+export default OnboardingPage;
