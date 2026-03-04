@@ -2,14 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { departments } from "@/lib/store";
-import { Copy, Check, Pencil, X, Save } from "lucide-react";
+import { Copy, Check, Pencil, X, Save, LogOut } from "lucide-react"; // Added LogOut
 import { useUser } from "@/hooks/use-user";
 import { createClient } from "@supabase/supabase-js";
+import { signOut } from "next-auth/react"; // Added signOut
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+
+// ... ProfileCompletionBar and InviteButton components remain the same ...
 
 function ProfileCompletionBar({ user }: { user: any }) {
   const fields = [
@@ -167,6 +170,15 @@ export default function ProfilePage() {
               ? new Date(displayUser.created_at).toLocaleDateString("en-NG", { month: "long", year: "numeric" })
               : "—"}
           </p>
+
+          {/* Logout Button */}
+          <button
+            onClick={() => signOut({ callbackUrl: "/auth" })}
+            className="mt-8 w-full h-10 flex items-center justify-center gap-2 rounded-xl border border-red-500/10 bg-red-500/5 font-mono text-xs text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all duration-200"
+          >
+            <LogOut size={13} />
+            Sign out of account
+          </button>
         </div>
 
         {displayUser && <ProfileCompletionBar user={displayUser} />}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { PlayCircle, BookOpen, Calendar, MessageSquare, ExternalLink, ArrowRight } from 'lucide-react'
 
 function WaveformAnimation() {
   return (
@@ -9,10 +10,9 @@ function WaveformAnimation() {
       {[0.4, 0.7, 1, 0.6, 0.8].map((scale, i) => (
         <div
           key={i}
-          className="w-[3px] bg-gold rounded-full waveform-bar"
+          className="w-[3px] bg-gold rounded-full waveform-bar animate-waveform"
           style={{
             animationDelay: `${i * 0.15}s`,
-            animationDuration: `${0.8 + i * 0.2}s`,
           }}
         />
       ))}
@@ -20,52 +20,73 @@ function WaveformAnimation() {
   )
 }
 
+
 function HeroSection() {
   const [mounted, setMounted] = useState(false)
+  
+  // Replace this with your specific YouTube Video ID
+  const videoId = "XQF_rtkgqyc" 
+
   useEffect(() => { setMounted(true) }, [])
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center gradient-pulse overflow-hidden adire-pattern">
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden">
+      {/* 1. YOUTUBE BACKGROUND OVERLAY */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 w-full h-full scale-[1.5]"> {/* Scale prevents black bars */}
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1`}
+            allow="autoplay; encrypted-media"
+            className="w-full h-full object-cover grayscale opacity-40 pointer-events-none"
+            frameBorder="0"
+          />
+        </div>
+        
+        {/* Cinematic Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background" />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
+
+      {/* 2. HERO CONTENT */}
       <div className="relative z-10 px-6 md:px-12 lg:px-24 max-w-[1400px]">
         <div className={`${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '0ms' }}>
-          <h1 className="font-serif text-cream text-5xl sm:text-7xl md:text-8xl lg:text-[96px] leading-[0.95] tracking-tight">
-            Where Faith
+          <h1 className="font-serif text-cream text-5xl sm:text-7xl md:text-8xl lg:text-[110px] leading-[0.9] tracking-tighter">
+            Where Faith <br /> Meets <span className="text-gold">Now.</span>
           </h1>
         </div>
-        <div className={`${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '80ms' }}>
-          <h1 className="font-serif text-cream text-5xl sm:text-7xl md:text-8xl lg:text-[96px] leading-[0.95] tracking-tight">
-            Meets <span className="text-gold">Now.</span>
-          </h1>
-        </div>
-        <div className={`mt-8 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '160ms' }}>
-          <p className="font-sans text-muted-foreground text-base md:text-lg max-w-[480px] leading-relaxed">
-            A community for young believers in Kano. Sermons, events, devotionals — all in one place.
+        
+        <div className={`mt-10 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '160ms' }}>
+          <p className="font-sans text-muted-foreground text-lg md:text-xl max-w-[540px] leading-relaxed">
+            The digital companion for the next generation of believers. Daily fellowship, ministry resources, and digital study—built for the church in Kano.
           </p>
         </div>
-        <div className={`flex flex-wrap gap-4 mt-10 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '240ms' }}>
+
+        <div className={`flex flex-wrap gap-4 mt-12 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '240ms' }}>
           <Link
             href="/auth"
-            className="inline-flex items-center justify-center h-12 px-8 bg-gold text-[#0A0A0A] font-sans font-medium text-sm rounded-xl hover:scale-[1.02] transition-all duration-200"
+            className="group inline-flex items-center justify-center h-14 px-10 bg-gold text-[#0A0A0A] font-sans font-bold text-sm rounded-2xl hover:scale-[1.02] transition-all duration-300"
           >
-            Join the Community
+            Enter Sanctuary <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={18} />
           </Link>
           <Link
             href="/dashboard/sermons"
-            className="inline-flex items-center justify-center h-12 px-8 border border-gold text-gold font-sans font-medium text-sm rounded-xl hover:bg-gold/10 transition-all duration-200"
+            className="inline-flex items-center justify-center h-14 px-10 border border-white/10 bg-white/5 backdrop-blur-md text-cream font-sans font-medium text-sm rounded-2xl hover:bg-white/10 transition-all duration-300"
           >
-            Explore Sermons
+            Explore Library
           </Link>
         </div>
       </div>
 
-      {/* Next Service Card */}
-      <div className={`absolute bottom-8 right-6 md:right-12 lg:right-24 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '400ms' }}>
-        <div className="bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-4 px-5 flex items-center gap-3">
-          <div className="w-2.5 h-2.5 rounded-full bg-success pulse-dot" />
-          <div>
-            <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">Next Service</p>
-            <p className="font-sans text-cream text-sm font-medium">Sunday 9AM</p>
-          </div>
+      {/* Stats/Next Service Overlay */}
+      <div className={`absolute bottom-12 left-6 md:left-12 lg:left-24 hidden md:flex gap-12 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '400ms' }}>
+        <div>
+          <p className="font-mono text-[10px] text-gold uppercase tracking-[0.3em] mb-1">Live in Kano</p>
+          <p className="font-serif text-cream text-2xl">Sundays 9AM</p>
+        </div>
+        <div className="w-[1px] h-12 bg-white/10" />
+        <div>
+          <p className="font-mono text-[10px] text-gold uppercase tracking-[0.3em] mb-1">Global Reach</p>
+          <p className="font-serif text-cream text-2xl">Daily Rhapsody</p>
         </div>
       </div>
     </section>
@@ -77,53 +98,73 @@ function FeatureBlocks() {
   useEffect(() => { setMounted(true) }, [])
 
   return (
-    <section className="px-6 md:px-12 lg:px-24 py-20 max-w-[1400px] mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {/* Block 1 — Sermon Library (large, left) */}
-        <div
-          className={`md:row-span-2 bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-6 md:p-8 flex flex-col justify-between min-h-[300px] md:min-h-[400px] hover:border-gold/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 ${mounted ? 'animate-fade-up' : 'opacity-0'}`}
-          style={{ animationDelay: '100ms' }}
-        >
-          <div>
-            <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider mb-4">Sermon Library</p>
-            <WaveformAnimation />
+    <section className="px-6 md:px-12 lg:px-24 py-32 max-w-[1400px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        
+        {/* Sermon Dashboard Card (Large) */}
+        <div className={`md:col-span-8 bg-surface border border-white/5 rounded-[32px] p-8 md:p-12 relative overflow-hidden group hover:border-gold/30 transition-all duration-500 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '100ms' }}>
+          <div className="relative z-10 h-full flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-8">
+                <PlayCircle className="text-gold" size={24} />
+                <span className="font-mono text-[11px] text-gold uppercase tracking-widest">Sermon Archives</span>
+              </div>
+              <h3 className="font-serif text-cream text-3xl md:text-5xl max-w-md leading-tight">Access Deep Teachings Anywhere.</h3>
+              <p className="mt-6 text-muted-foreground text-lg max-w-sm">Stream curated playlists from Pastor Chris and build your spiritual library.</p>
+            </div>
+            <div className="mt-12">
+              <WaveformAnimation />
+            </div>
           </div>
-          <div className="mt-auto">
-            <h3 className="font-serif text-cream text-xl md:text-2xl mb-1">The Weight of Grace</h3>
-            <p className="font-sans text-muted-foreground text-sm">Pastor Bright</p>
+          {/* Subtle Background Art */}
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-gold/5 to-transparent pointer-events-none" />
+        </div>
+
+        {/* Daily Study / Notes (Tall) */}
+        <div className={`md:col-span-4 bg-surface-elevated border border-white/5 rounded-[32px] p-8 flex flex-col justify-between hover:border-gold/20 transition-all duration-500 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '200ms' }}>
+          <div>
+            <div className="flex items-center gap-3 mb-8">
+              <MessageSquare className="text-gold" size={20} />
+              <span className="font-mono text-[11px] text-gold uppercase tracking-widest">Study Tools</span>
+            </div>
+            <h3 className="font-serif text-cream text-2xl">Digital Note-Taking</h3>
+            <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
+              Capture insights while you listen. Your notes are saved locally, creating a personal archive of your growth.
+            </p>
+          </div>
+          <div className="mt-8 p-4 bg-black/20 rounded-xl border border-white/5 italic text-gold/60 text-xs font-serif leading-relaxed">
+            "The Word is alive and active..."
           </div>
         </div>
 
-        {/* Block 2 — Events (small, top right) */}
-        <div
-          className={`bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-6 flex items-center gap-4 hover:border-gold/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 ${mounted ? 'animate-fade-up' : 'opacity-0'}`}
-          style={{ animationDelay: '180ms' }}
-        >
-          <div className="w-12 h-12 rounded-xl bg-surface-elevated flex items-center justify-center flex-shrink-0">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
+        {/* Rhapsody Portal (Small) */}
+        <div className={`md:col-span-6 bg-surface border border-white/5 rounded-[32px] p-8 flex items-center justify-between hover:bg-gold/5 transition-all duration-500 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '300ms' }}>
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-gold/10 flex items-center justify-center text-gold">
+              <BookOpen size={32} />
+            </div>
+            <div>
+              <h3 className="font-serif text-cream text-xl">Daily Rhapsody</h3>
+              <p className="text-muted-foreground text-sm">Read the messenger angel daily.</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-sans text-cream text-lg font-medium">3 events this month</h3>
-            <p className="font-sans text-muted-foreground text-sm">Upcoming gatherings</p>
-          </div>
+          <ExternalLink size={20} className="text-muted-foreground group-hover:text-gold" />
         </div>
 
-        {/* Block 3 — Devotional (medium, bottom right) */}
-        <div
-          className={`bg-surface border border-[rgba(255,255,255,0.06)] rounded-2xl p-6 md:p-8 hover:border-gold/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 ${mounted ? 'animate-fade-up' : 'opacity-0'}`}
-          style={{ animationDelay: '260ms' }}
-        >
-          <p className="font-mono text-[11px] text-muted-foreground uppercase tracking-wider mb-4">Daily Devotional</p>
-          <blockquote className="font-serif text-cream/90 italic text-lg md:text-xl leading-relaxed">
-            {'"For I know the plans I have for you," declares the Lord...'}
-          </blockquote>
-          <p className="font-mono text-gold text-xs mt-3 text-right">Jeremiah 29:11</p>
+        {/* Event Counter (Small) */}
+        <div className={`md:col-span-6 bg-surface border border-white/5 rounded-[32px] p-8 flex items-center justify-between hover:bg-white/5 transition-all duration-500 ${mounted ? 'animate-fade-up' : 'opacity-0'}`} style={{ animationDelay: '400ms' }}>
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-cream">
+              <Calendar size={32} />
+            </div>
+            <div>
+              <h3 className="font-serif text-cream text-xl">Youth Events</h3>
+              <p className="text-muted-foreground text-sm">Join the next gathering in Kano.</p>
+            </div>
+          </div>
+          <span className="bg-gold/10 text-gold font-mono text-xs px-3 py-1 rounded-full uppercase">3 Upcoming</span>
         </div>
+
       </div>
     </section>
   )
@@ -131,17 +172,32 @@ function FeatureBlocks() {
 
 function Footer() {
   return (
-    <footer className="px-6 md:px-12 lg:px-24 py-16 border-t border-[rgba(255,255,255,0.06)]">
-      <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <footer className="px-6 md:px-12 lg:px-24 py-20 border-t border-white/5">
+      <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-12">
         <div>
-          <h2 className="font-serif text-gold text-xl">Sanctuary</h2>
-          <p className="font-sans text-muted-foreground text-sm mt-1">Built for the next generation.</p>
+          <h2 className="font-serif text-gold text-2xl tracking-tighter">SANCTUARY</h2>
+          <p className="font-sans text-muted-foreground text-sm mt-2">Equipping the next generation for a life of purpose.</p>
         </div>
-        <nav className="flex gap-8">
-          <Link href="/auth" className="font-sans text-sm text-muted-foreground hover:text-cream transition-colors">Join</Link>
-          <Link href="/dashboard/sermons" className="font-sans text-sm text-muted-foreground hover:text-cream transition-colors">Sermons</Link>
-          <Link href="/dashboard/events" className="font-sans text-sm text-muted-foreground hover:text-cream transition-colors">Events</Link>
-        </nav>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-12">
+          <div className="space-y-4">
+            <p className="font-mono text-[10px] text-white/40 uppercase tracking-widest">Platform</p>
+            <nav className="flex flex-col gap-2">
+              <Link href="/auth" className="text-sm text-muted-foreground hover:text-gold transition-colors">Join Community</Link>
+              <Link href="/dashboard/sermons" className="text-sm text-muted-foreground hover:text-gold transition-colors">Listen Online</Link>
+            </nav>
+          </div>
+          <div className="space-y-4">
+            <p className="font-mono text-[10px] text-white/40 uppercase tracking-widest">Ministry</p>
+            <nav className="flex flex-col gap-2">
+              <Link href="#" className="text-sm text-muted-foreground hover:text-gold transition-colors">About Us</Link>
+              <Link href="#" className="text-sm text-muted-foreground hover:text-gold transition-colors">Partnership</Link>
+            </nav>
+          </div>
+        </div>
+      </div>
+      <div className="max-w-[1400px] mx-auto mt-20 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <p className="text-[10px] font-mono text-white/20 uppercase tracking-widest">© 2026 Sanctuary Kano. All rights reserved.</p>
+        <p className="text-[10px] font-mono text-white/20 uppercase tracking-widest">Built with Love & Grace</p>
       </div>
     </footer>
   )
@@ -149,7 +205,7 @@ function Footer() {
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-cream selection:bg-gold selection:text-black">
       <HeroSection />
       <FeatureBlocks />
       <Footer />

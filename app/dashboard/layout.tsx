@@ -17,6 +17,7 @@ import { useUser } from "@/hooks/use-user";
 
 const navItems = [
   { label: "Home", href: "/dashboard", icon: Home },
+  { label: "Sermons", href: "/dashboard/sermons", icon: Headphones },
   { label: "Events", href: "/dashboard/events", icon: CalendarDays },
   { label: "Devotional", href: "/dashboard/devotional", icon: BookOpen },
   { label: "Profile", href: "/dashboard/profile", icon: User },
@@ -24,6 +25,7 @@ const navItems = [
 
 const mobileNavItems = [
   { label: "Home", href: "/dashboard", icon: Home },
+  { label: "Sermons", href: "/dashboard/sermons", icon: Headphones },
   { label: "Events", href: "/dashboard/events", icon: CalendarDays },
   { label: "Devotional", href: "/dashboard/devotional", icon: BookOpen },
   { label: "Profile", href: "/dashboard/profile", icon: User },
