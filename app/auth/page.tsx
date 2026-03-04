@@ -19,11 +19,6 @@ export default function AuthPage() {
   });
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push("/dashboard");
-  };
-
   const inputClass =
     "w-full h-12 px-4 bg-surface-elevated border border-[rgba(255,255,255,0.06)] rounded-xl text-cream font-sans text-sm placeholder:text-muted-foreground focus:outline-none focus:border-gold/40 focus:shadow-[0_0_0_3px_rgba(201,168,76,0.15)] transition-all duration-200";
 
@@ -67,12 +62,12 @@ export default function AuthPage() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <SignIn />
             <p className="font-sans text-[11px] text-muted-foreground text-center mt-2">
               By joining you agree to our community guidelines
             </p>
-          </form>
+          </div>
         </div>
       </div>
     </div>
